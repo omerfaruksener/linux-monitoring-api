@@ -17,12 +17,12 @@ def test_System_info():
     assert data["cpu_count"] > 0
 
 def test_top_processes_valid_limit():
-    response = client.get("/api/processes?limit=3")
+    response = client.get("/api/top-processes?limit=3")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 3 #Dönen süreç sayısı 3 veya daha a olmalı
 
 def test_top_processes_invalid_limit():
     # 50'den büyük bir limit göndererek API'nin bunu reddettiğini test ediyoruz
-    response = client.get("/api/processes?limit=100")
+    response = client.get("/api/top-processes?limit=100")
     assert response.status_code == 422  # 422 Unprocessable Entity dönmeli
