@@ -1,14 +1,25 @@
-from fastapi import FastAPI, Query
+from http.client import HTTPException
+
+from fastapi import FastAPI, Query, HTTPException
 from typing import List
 from pydantic import BaseModel
 import platform
 import time
 import os
 import psutil
+import socket
 
 app = FastAPI(title="Linux Monitoring API", version="1.0.0")
 
 # --- 1. DTO / MODEL TANIMLARI (Pydantic) ---
+
+class SystemInfo(BaseModel):
+    os: str
+    hostname: str
+    release: str
+    architecture: str
+    cpu_count: int
+    uptime_seconds: float
 
 class ProcessInfo(BaseModel):
     pid: int
@@ -37,6 +48,25 @@ class SystemMetricsResponse(BaseModel):
     disk: DiskInfo
 
 # --- 2. ENDPOINT TANIMI ---
+@app.get("/health", status_code=200)
+def health_check():
+    return {"status": "ok"}
+
+# Madde 1: Geliştirilmiş Sistem Bilgileri (Hostname ve Uptime eklendi)
+@app.get("/api/system", response_model=SystemInfo)
+def get_system_info():
+    boot_time = psutil.boot_time()
+    uptime_seconds = time.time() - boot_time
+
+    return SystemInfo(
+        os=platform.system(),
+        hostname=socket.gethostname(),
+        release=platform.release(),
+        architecture=platform.machine(),
+        cpu_count=os.cpu_count(),
+        uptime_seconds=round(uptime_seconds,2)
+    )
+
 
 @app.get("/api/metrics", response_model=SystemMetricsResponse)
 def get_system_metrics():
@@ -44,7 +74,7 @@ def get_system_metrics():
     disk = psutil.disk_usage('/')
     cpu_oranı = psutil.cpu_percent(interval=1)
 
-    kritik_durum = cpu_oranı > 85 or bellek.percent > 85
+    kritik_durum = cpu_oranı > 85 or bellek.percent > 85 or disk.percent > 85
 
     # Verileri doğrudan Pydantic modellerine paketleyip dönüyoruz
     return SystemMetricsResponse(
@@ -105,3 +135,4 @@ def get_top_processes(
     )[:limit]
 
     return sirali_surecler
+
