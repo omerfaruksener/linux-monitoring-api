@@ -81,3 +81,10 @@ def get_top_processes_data(limit: int):
     )[:limit]
 
     return sirali_surecler
+
+def get_about_data():
+    return {
+        "app_name": "Linux Monitoring API",
+        "version": "2.0.0",
+        "developer": "Ömer Faruk Şener"
+    }

@@ -35,3 +35,8 @@ class SystemMetricsResponse(BaseModel):
     cpu: CpuInfo
     memory: MemoryInfo
     disk: DiskInfo
+
+class AboutInfo(BaseModel):
+    app_name: str
+    version: str
+    developer: str

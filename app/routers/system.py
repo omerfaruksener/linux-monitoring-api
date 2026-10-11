@@ -1,6 +1,7 @@
 from fastapi import APIRouter
-from app.schemas.metrics import SystemInfo, SystemMetricsResponse
-from app.services.system_monitor import get_system_info_data, get_system_metrics_data
+from app.schemas.metrics import SystemInfo, SystemMetricsResponse,AboutInfo
+from app.services.system_monitor import get_system_info_data, get_system_metrics_data,get_about_data
+
 
 router = APIRouter()
 
@@ -12,5 +13,6 @@ def get_system_info():
 def get_system_metrics():
     return get_system_metrics_data()
 
-
-
+@router.get("/about", response_model=AboutInfo)
+def get_about():
+    return get_about_data()
